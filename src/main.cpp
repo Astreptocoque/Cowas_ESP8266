@@ -13,12 +13,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-
-const char *ssid = "AstreptoAccessPointPhone";
-const char *password = "Astrepto";
-
-//Your Domain name with URL path or IP address with path
-String serverName = "http://192.168.75.170:5000/";
+#include "cWifi.h"
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -30,6 +25,7 @@ unsigned long timerDelay = 1000;
 int pin_led = 2;
 int pin_button = 0;
 uint8_t button_state = 0;
+cWifi wifi;
 
 void setup()
 {
@@ -37,18 +33,8 @@ void setup()
     pinMode(pin_led, OUTPUT);
     // pinMode(pin_button, INPUT);
 
-    WiFi.begin(ssid, password);
-    Serial.println("Connecting");
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.print("Connected to WiFi network with IP Address: ");
-    Serial.println(WiFi.localIP());
-
-    Serial.println("Timer set to 1 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
+    wifi.begin();
+   
 }
 
 void loop()
@@ -60,72 +46,32 @@ void loop()
         //Check WiFi connection status
         if (WiFi.status() == WL_CONNECTED)
         {
+                  // ======================================================
+            // ======================================================
             WiFiClient client;
             HTTPClient http;
-
-            String serverPath = serverName + "control/?query=led";
-
+    
             // Your Domain name with URL path or IP address with path
-            http.begin(client, serverPath.c_str());
-
-            // Send HTTP GET request
-            int httpResponseCode = http.GET();
-            Serial.println(httpResponseCode);
-            int payload = http.getString().toInt();
-            Serial.println(payload);
-
-            if (httpResponseCode == 200)
-            {
-                if (payload == 1)
-                {
-                    Serial.print("HTTP Response code: ");
-                    Serial.println(httpResponseCode);
-                    String payload = http.getString();
-                    Serial.println(payload);
-                    // turn on the led
-                    digitalWrite(pin_led, HIGH);
-                }
-                else if (payload == 0)
-                {
-                    Serial.print("HTTP GET response : ");
-                    Serial.println(httpResponseCode);
-                    String payload = http.getString();
-                    Serial.println(payload);
-                    // turn off the led
-                    digitalWrite(pin_led, LOW);
-                }
-            }
-            else
-            {
-                Serial.println("HTTP error code -  bad query");
-            }
-            // Free resources
-            http.end();
-
-
-        // ======================================================
-        // ======================================================
-
-            uint8_t button_state = digitalRead(pin_button);
+            button_state = digitalRead(pin_button);
             Serial.print("Button state : ");
             Serial.println(button_state);
-
-            // update button state
-            serverPath = serverName + "update";
-
+            
+             // update button state
+            // String serverPath = serverName + "update";
             // Your Domain name with URL path or IP address with path
-            http.begin(client, serverPath.c_str());
+            http.begin(client, serverName); //serverPath.c_str());
 
             // Send HTTP GET request
             http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            String postData = "button_state=" + String(button_state);
-            Serial.println(postData);
-            httpResponseCode = http.POST(postData);
-
+            String postData = "button_state=" + String(button_state)+"&";
+            int httpResponseCode = http.POST(postData);
+            String payload = http.getString(); 
             if (httpResponseCode == 200)
             {
                 Serial.print("HTTP POST response : ");
                 Serial.println(httpResponseCode);
+                Serial.println(payload); //Print request response payload 
+
             }
             else
             {
