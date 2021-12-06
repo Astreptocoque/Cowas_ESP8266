@@ -13,6 +13,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
+#include <ArduinoJson.h>
 #include "cWifi.h"
 
 // the following variables are unsigned longs because the time, measured in
@@ -31,60 +32,31 @@ void setup()
 {
     Serial.begin(9600);
     pinMode(pin_led, OUTPUT);
-    // pinMode(pin_button, INPUT);
+    pinMode(pin_button, INPUT);
 
     wifi.begin();
    
 }
 
+StaticJsonBuffer<300> JSONbuffer;
+JsonObject& JSONencoder = JSONbuffer.createObject();
+String payload;
+
 void loop()
 {
-
-    // Send an HTTP POST request depending on timerDelay
-    if ((millis() - lastTime) > timerDelay)
-    {
-        //Check WiFi connection status
-        if (WiFi.status() == WL_CONNECTED)
-        {
-                  // ======================================================
-            // ======================================================
-            WiFiClient client;
-            HTTPClient http;
     
-            // Your Domain name with URL path or IP address with path
-            button_state = digitalRead(pin_button);
-            Serial.print("Button state : ");
-            Serial.println(button_state);
-            
-             // update button state
-            // String serverPath = serverName + "update";
-            // Your Domain name with URL path or IP address with path
-            http.begin(client, serverName); //serverPath.c_str());
 
-            // Send HTTP GET request
-            http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            String postData = "button_state=" + String(button_state)+"&";
-            int httpResponseCode = http.POST(postData);
-            String payload = http.getString(); 
-            if (httpResponseCode == 200)
-            {
-                Serial.print("HTTP POST response : ");
-                Serial.println(httpResponseCode);
-                Serial.println(payload); //Print request response payload 
+    StaticJsonBuffer<300> JSONbuffer;
+    JsonObject& JSONencoder = JSONbuffer.createObject();
+    JSONencoder["sensor"] = "button";
+    JSONencoder["value"] = digitalRead(pin_button);
+    char JSONmessageBuffer[300];
+    JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+    Serial.println(JSONmessageBuffer);
+    
+    wifi.post("/update", JSONmessageBuffer);
+    payload = wifi.get("/control/?query=led");
+    digitalWrite(pin_led, payload.toInt());
+    delay(2000);
 
-            }
-            else
-            {
-                Serial.println("HTTP error code -  bad post");
-            }
-            // Free resources
-            http.end();
-           
-        }
-        else
-        {
-            Serial.println("WiFi Disconnected");
-        }
-        lastTime = millis();
-    }
 }

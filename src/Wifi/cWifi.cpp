@@ -10,50 +10,27 @@
 
 using namespace std;
 
+// Write here wifi settings
+const char *ssid = "AstreptoAccessPointPhone";
+const char *password = "Astrepto";
+
+//Your Domain name with URL path or IP address with path
+const String serverName = "http://128.179.146.212:5000";
+// StaticJsonBuffer<300> JSONbuffer;
+// JsonObject& JSONencoder = JSONbuffer.createObject();
+
 void cWifi::begin()
 {
 
-    // time before connecting to another network
-    int lastTime = millis();
-    int timerDelay = 10000;
-    bool connection_failed = 0;
-    uint8_t i;
-
-    for (i = 0; i < size(WifiDatabase); i++)
+    WiFi.begin(ssid, password);
+    Serial.println("Connecting to network " + String(ssid));
+    while (WiFi.status() != WL_CONNECTED)
     {
-        char *ssid = WifiDatabase[i][0];
-        char *password = WifiDatabase[i][1];
-        connection_failed = 0;
-        WiFi.begin(ssid, password);
-        Serial.println("Connecting to network " + String(i) + " (" + WifiDatabase[i][0] + ")");
-        while (WiFi.status() != WL_CONNECTED)
-        {
-            delay(500);
-            Serial.print(".");
-
-            if (millis() - lastTime > timerDelay)
-            {
-                connection_failed = 1;
-                break;
-            }
-        }
-
-        if (!connection_failed)
-        {
-            Serial.println("");
-            Serial.print("Connected to WiFi network with IP Address: ");
-            Serial.println(WiFi.localIP());
-            break;
-        }
+        delay(500);
+        Serial.print(".");
     }
-
-    // if no network connected
-    if (i == size(WifiDatabase) - 1 && connection_failed)
-    {
-        Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        Serial.println("Connection to network failed");
-        // retry in 5 minutes
-    }
+    Serial.println("Connected to local Wifi");
+    Serial.println(WiFi.localIP());
 };
 
 String cWifi::get(String URL)
@@ -65,6 +42,7 @@ String cWifi::get(String URL)
         HTTPClient http;
 
         String serverPath = serverName + URL; //"control/?query=led";
+        Serial.println(serverPath);
 
         // Your Domain name with URL path or IP address with path
         http.begin(client, serverPath.c_str());
@@ -82,48 +60,56 @@ String cWifi::get(String URL)
         }
         else
         {
-            Serial.println("HTTP error code -  bad query");
+            Serial.println("HTTP error code -  bad get");
             return "error";
         }
     }
+    else
+    {
+        return "error";
+    }
 };
 
-void cWifi::post(String URL, String data){
+void cWifi::post(String URL, char* data)
+{
+    //https://arduinojson.org/v6/doc/upgrade/
+    //With esp8266http use arduinojson v5
 
-     //Check WiFi connection status
-        if (WiFi.status() == WL_CONNECTED)
+    // StaticJsonBuffer<300> JSONbuffer;
+    
+
+    //Check WiFi connection status
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        // ======================================================
+        // ======================================================
+        WiFiClient client;
+        HTTPClient http;
+
+        String serverPath = serverName + URL;
+        Serial.println(serverPath);
+
+        // Your Domain name with URL path or IP address with path
+        http.begin(client, serverPath.c_str());
+
+        // Send HTTP GET request
+        http.addHeader("Content-Type", "application/json");
+        // String postData = "button_state=" + data + "&";
+        int httpResponseCode = http.POST(data);
+        String payload = http.getString();
+        if (httpResponseCode == 200)
         {
-                  // ======================================================
-            // ======================================================
-            WiFiClient client;
-            HTTPClient http;
-            
-            String serverPath = serverName + URL;
-
-            // Your Domain name with URL path or IP address with path
-            http.begin(client, serverPath.c_str());
-
-            // Send HTTP GET request
-            http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            String postData = "button_state=" + data +"&";
-            int httpResponseCode = http.POST(postData);
-            String payload = http.getString(); 
-            if (httpResponseCode == 200)
-            {
-                Serial.println(payload); //Print request response payload 
-            }
-            else
-            {
-                Serial.println("HTTP error code -  bad post");
-            }
-            // Free resources
-            http.end();
-           
+            Serial.println(payload); //Print request response payload
         }
         else
         {
-            Serial.println("WiFi Disconnected");
+            Serial.println("HTTP error code -  bad post");
         }
-        lastTime = millis();
-    
+        // Free resources
+        http.end();
+    }
+    else
+    {
+        Serial.println("WiFi Disconnected");
+    }
 };
