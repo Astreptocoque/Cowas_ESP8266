@@ -45,18 +45,19 @@ String payload;
 void loop()
 {
     
-
-    StaticJsonBuffer<300> JSONbuffer;
-    JsonObject& JSONencoder = JSONbuffer.createObject();
-    JSONencoder["sensor"] = "button";
-    JSONencoder["value"] = digitalRead(pin_button);
-    char JSONmessageBuffer[300];
-    JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-    Serial.println(JSONmessageBuffer);
+    wifi.updateTime();
+    delay(500);
+    // StaticJsonBuffer<300> JSONbuffer;
+    // JsonObject& JSONencoder = JSONbuffer.createObject();
+    // JSONencoder["sensor"] = "button";
+    // JSONencoder["value"] = digitalRead(pin_button);
+    // char JSONmessageBuffer[300];
+    // JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+    // Serial.println(JSONmessageBuffer);
     
-    wifi.post("/update", JSONmessageBuffer);
-    payload = wifi.get("/control/?query=led");
-    digitalWrite(pin_led, payload.toInt());
-    delay(2000);
+    // wifi.post("/update", JSONmessageBuffer);
+    // payload = wifi.get("/control/?query=led");
+    // digitalWrite(pin_led, payload.toInt());
+    // delay(2000);
 
 }

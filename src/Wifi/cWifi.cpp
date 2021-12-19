@@ -5,6 +5,8 @@
 #include <WiFiClient.h>
 #include "cWifi.h" // custom Wifi¨
 #include <ArduinoJson.h>
+#include <NTPClient.h>
+#include "WiFiUdp.h"
 
 #define NB_KNOWN_WIFI
 
@@ -14,8 +16,13 @@ using namespace std;
 const char *ssid = "AstreptoAccessPointPhone";
 const char *password = "Astrepto";
 
+// define ntp client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
+
 //Your Domain name with URL path or IP address with path
-const String serverName = "http://128.179.146.212:5000";
+const String serverCowas = "http://128.179.146.212:5000";
+const String serverTime = "http://www.google.com";
 // StaticJsonBuffer<300> JSONbuffer;
 // JsonObject& JSONencoder = JSONbuffer.createObject();
 
@@ -31,7 +38,25 @@ void cWifi::begin()
     }
     Serial.println("Connected to local Wifi");
     Serial.println(WiFi.localIP());
+
+    // init ntp
+    timeClient.begin();
+    timeClient.setTimeOffset(3600);
 };
+
+void cWifi::updateTime()
+{
+    timeClient.update();
+    int currentHour = timeClient.getHours();
+    Serial.print("Hour: ");
+    Serial.println(currentHour);
+    int currentMinute = timeClient.getMinutes();
+    Serial.print("Minutes: ");
+    Serial.println(currentMinute);
+    int currentSecond = timeClient.getSeconds();
+    Serial.print("Seconds: ");
+    Serial.println(currentSecond);
+}
 
 String cWifi::get(String URL)
 {
@@ -41,7 +66,7 @@ String cWifi::get(String URL)
         WiFiClient client;
         HTTPClient http;
 
-        String serverPath = serverName + URL; //"control/?query=led";
+        String serverPath = serverCowas + URL; //"control/?query=led";
         Serial.println(serverPath);
 
         // Your Domain name with URL path or IP address with path
@@ -70,13 +95,12 @@ String cWifi::get(String URL)
     }
 };
 
-void cWifi::post(String URL, char* data)
+void cWifi::post(String URL, char *data)
 {
     //https://arduinojson.org/v6/doc/upgrade/
     //With esp8266http use arduinojson v5
 
     // StaticJsonBuffer<300> JSONbuffer;
-    
 
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED)
@@ -86,7 +110,7 @@ void cWifi::post(String URL, char* data)
         WiFiClient client;
         HTTPClient http;
 
-        String serverPath = serverName + URL;
+        String serverPath = serverCowas + URL;
         Serial.println(serverPath);
 
         // Your Domain name with URL path or IP address with path

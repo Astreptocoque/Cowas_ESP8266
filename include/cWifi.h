@@ -13,6 +13,7 @@ class cWifi
 {
     public:
         void begin();
+        void updateTime();
         String get(String URL);
         void post(String URL, char* data);
     private:
