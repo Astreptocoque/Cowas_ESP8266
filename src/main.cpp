@@ -15,6 +15,7 @@
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
 #include "cWifi.h"
+#include "Serial_device.h"
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -26,26 +27,32 @@ unsigned long timerDelay = 1000;
 int pin_led = 2;
 int pin_button = 0;
 uint8_t button_state = 0;
-cWifi wifi;
-
-void setup()
-{
-    Serial.begin(9600);
-    pinMode(pin_led, OUTPUT);
-    pinMode(pin_button, INPUT);
-
-    wifi.begin();
-   
-}
+Serial_device due;
 
 StaticJsonBuffer<300> JSONbuffer;
 JsonObject& JSONencoder = JSONbuffer.createObject();
 String payload;
 
+void setup()
+{
+    Serial.begin(115200);
+    // pinMode(pin_led, OUTPUT);
+    // pinMode(pin_button, INPUT);
+    // serial.begin();
+    wifi_begin();
+    due.start_communication();
+    wifi_updateTime();
+    due.send_time();
+    due.validation();
+   
+}
+
 void loop()
 {
     
-    wifi.updateTime();
+    // wifi.updateTime();
+    // serial.send()
+   
     delay(500);
     // StaticJsonBuffer<300> JSONbuffer;
     // JsonObject& JSONencoder = JSONbuffer.createObject();

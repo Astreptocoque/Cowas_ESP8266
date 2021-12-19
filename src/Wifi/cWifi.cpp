@@ -7,10 +7,15 @@
 #include <ArduinoJson.h>
 #include <NTPClient.h>
 #include "WiFiUdp.h"
+#include "Serial_device.h"
 
-#define NB_KNOWN_WIFI
 
 using namespace std;
+extern Serial_device serial;
+
+int currentMinute;
+int currentHour;
+int currentWeekday;
 
 // Write here wifi settings
 const char *ssid = "AstreptoAccessPointPhone";
@@ -26,39 +31,43 @@ const String serverTime = "http://www.google.com";
 // StaticJsonBuffer<300> JSONbuffer;
 // JsonObject& JSONencoder = JSONbuffer.createObject();
 
-void cWifi::begin()
+void wifi_begin()
 {
 
     WiFi.begin(ssid, password);
-    Serial.println("Connecting to network " + String(ssid));
+    // Serial.println("Connecting to network " + String(ssid));
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(500);
-        Serial.print(".");
+        // Serial.print(".");
     }
-    Serial.println("Connected to local Wifi");
-    Serial.println(WiFi.localIP());
+    // Serial.println("Connected to local Wifi");
+    // Serial.println(WiFi.localIP());
 
     // init ntp
     timeClient.begin();
     timeClient.setTimeOffset(3600);
-};
-
-void cWifi::updateTime()
-{
-    timeClient.update();
-    int currentHour = timeClient.getHours();
-    Serial.print("Hour: ");
-    Serial.println(currentHour);
-    int currentMinute = timeClient.getMinutes();
-    Serial.print("Minutes: ");
-    Serial.println(currentMinute);
-    int currentSecond = timeClient.getSeconds();
-    Serial.print("Seconds: ");
-    Serial.println(currentSecond);
 }
 
-String cWifi::get(String URL)
+void wifi_updateTime()
+{
+    timeClient.update();
+    currentHour = timeClient.getHours();
+    currentMinute = timeClient.getMinutes();
+    currentWeekday = timeClient.getDay();
+}
+
+int wifi_get_minute(){
+    return currentMinute;
+}
+int wifi_get_hour(){
+    return currentHour;
+}
+int wifi_get_day(){
+    return currentWeekday;
+}
+
+String wifi_get_url(String URL)
 {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED)
@@ -93,9 +102,9 @@ String cWifi::get(String URL)
     {
         return "error";
     }
-};
+}
 
-void cWifi::post(String URL, char *data)
+void wifi_post_url(String URL, char *data)
 {
     //https://arduinojson.org/v6/doc/upgrade/
     //With esp8266http use arduinojson v5
@@ -136,4 +145,4 @@ void cWifi::post(String URL, char *data)
     {
         Serial.println("WiFi Disconnected");
     }
-};
+}
