@@ -1,11 +1,18 @@
 #include "Serial_device.h"
 #include "cWifi.h"
 
+
+#define LF          0x0A 
+#define CR          0x0D
+
+char data[10]; 
+int idx;
+
 void Serial_device::start_communication(){
     // wait for first incoming data
-    while(Serial.available() == 0);
-    if(Serial.parseInt() != 1){
-        // turn led on
+    while(Serial.parseInt() != 1){
+        while(Serial.available() == 0);
+        delay(5);
     }
     Serial.print("2");
     while(Serial.available() == 0);
@@ -15,9 +22,9 @@ void Serial_device::start_communication(){
 }
 
 void Serial_device::send_time(){
-    Serial.print(String(wifi_get_hour()) + " ");
-    Serial.print(String(wifi_get_minute()) + " ");
-    Serial.print(String(wifi_get_day()) + " ");
+    Serial.println(String(wifi_get_hour()));
+    Serial.println(String(wifi_get_minute()));
+    Serial.println(String(wifi_get_day()));
 }
 
 void Serial_device::validation(){
@@ -27,6 +34,18 @@ void Serial_device::validation(){
     }
     Serial.print("1");
 }
+
+// void read_string(){
+// if (Serial.available() > 0) {
+//     data[idx] = Serial1.read();
+//     if (data[idx] == LF) {
+//         data[idx-1] = 0;
+//         action(angle_str);
+//         idx = -1;
+//         }
+//     idx++;
+//     }
+// }
 
 // String Serial_device::receive(){
 //     return Serial.readString();
