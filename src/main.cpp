@@ -16,6 +16,14 @@
 #include <ArduinoJson.h>
 #include "cWifi.h"
 #include "Serial_device.h"
+#include "GPIO.h"
+
+
+#define COMMUNICATION_PIN 12    // pin to engage conversation
+#define WIFI_CONNECTION_LED 13
+
+GPIO wifi_connection_led;       // led to indicate when connecting to wifi
+GPIO message_line;              // output to signal presence to main board
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -24,9 +32,7 @@ unsigned long lastTime = 0;
 //unsigned long timerDelay = 600000;
 // Set timer to 5 seconds (5000)
 unsigned long timerDelay = 1000;
-int pin_led = 2;
-int pin_button = 0;
-uint8_t button_state = 0;
+
 Serial_device due;
 
 StaticJsonBuffer<300> JSONbuffer;
@@ -36,14 +42,15 @@ String payload;
 void setup()
 {
     Serial.begin(115200);
-    // pinMode(pin_led, OUTPUT);
-    // pinMode(pin_button, INPUT);
-    // serial.begin();
+    wifi_connection_led.begin(COMMUNICATION_PIN, OUTPUT);
+    message_line.begin(WIFI_CONNECTION_LED, OUTPUT);
+
+    
     wifi_begin();
     due.start_communication();
     wifi_updateTime();
     due.send_time();
-    due.validation();
+    due.validation(); 
    
 }
 

@@ -8,10 +8,12 @@
 #include <NTPClient.h>
 #include "WiFiUdp.h"
 #include "Serial_device.h"
+#include "GPIO.h"
 
 
 using namespace std;
 extern Serial_device serial;
+extern GPIO wifi_connection_led;
 
 int currentMinute;
 int currentHour;
@@ -31,8 +33,9 @@ const String serverTime = "http://www.google.com";
 // StaticJsonBuffer<300> JSONbuffer;
 // JsonObject& JSONencoder = JSONbuffer.createObject();
 
-void wifi_begin()
-{
+void wifi_begin(){
+
+    wifi_connection_led.on();
 
     WiFi.begin(ssid, password);
     // Serial.println("Connecting to network " + String(ssid));
@@ -43,6 +46,8 @@ void wifi_begin()
     }
     // Serial.println("Connected to local Wifi");
     // Serial.println(WiFi.localIP());
+
+    wifi_connection_led.off();
 
     // init ntp
     timeClient.begin();

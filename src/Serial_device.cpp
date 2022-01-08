@@ -10,14 +10,10 @@ int idx;
 
 void Serial_device::start_communication(){
     // wait for first incoming data
-    while(Serial.parseInt() != 1){
+    digitalWrite(12, HIGH);
+    while(Serial.parseInt() != 1234){
         while(Serial.available() == 0);
         delay(5);
-    }
-    Serial.print("2");
-    while(Serial.available() == 0);
-    if(Serial.parseInt() != 3){
-        // turn led on
     }
 }
 
