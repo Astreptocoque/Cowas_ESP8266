@@ -18,6 +18,7 @@ extern GPIO wifi_connection_led;
 int currentMinute;
 int currentHour;
 int currentWeekday;
+uint32_t currentEpoch;          // seconds since 1 january 1970
 
 // Write here wifi settings
 const char *ssid = "AstreptoAccessPointPhone";
@@ -60,6 +61,7 @@ void wifi_updateTime()
     currentHour = timeClient.getHours();
     currentMinute = timeClient.getMinutes();
     currentWeekday = timeClient.getDay();
+    currentEpoch = timeClient.getEpochTime();
 }
 
 int wifi_get_minute(){
@@ -70,6 +72,10 @@ int wifi_get_hour(){
 }
 int wifi_get_day(){
     return currentWeekday;
+}
+
+uint32_t wifi_get_epoch(){
+    return currentEpoch;
 }
 
 String wifi_get_url(String URL)

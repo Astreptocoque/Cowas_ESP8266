@@ -21,6 +21,7 @@ void Serial_device::send_time(){
     Serial.println(String(wifi_get_hour()));
     Serial.println(String(wifi_get_minute()));
     Serial.println(String(wifi_get_day()));
+    Serial.println(String(wifi_get_epoch()));
 }
 
 void Serial_device::validation(){
