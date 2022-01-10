@@ -42,8 +42,8 @@ String payload;
 void setup()
 {
     Serial.begin(115200);
-    wifi_connection_led.begin(COMMUNICATION_PIN, OUTPUT);
-    message_line.begin(WIFI_CONNECTION_LED, OUTPUT);
+    wifi_connection_led.begin(WIFI_CONNECTION_LED, OUTPUT);
+    message_line.begin(COMMUNICATION_PIN, OUTPUT);
 
     
     wifi_begin();

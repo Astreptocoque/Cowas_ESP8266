@@ -1,26 +1,29 @@
 #include "Serial_device.h"
 #include "cWifi.h"
-
+#include "GPIO.h"
 
 #define LF          0x0A 
 #define CR          0x0D
+
+extern GPIO message_line;
 
 char data[10]; 
 int idx;
 
 void Serial_device::start_communication(){
     // wait for first incoming data
-    digitalWrite(12, HIGH);
+    message_line.on();
     while(Serial.parseInt() != 1234){
         while(Serial.available() == 0);
         delay(5);
     }
+    message_line.off();
 }
 
 void Serial_device::send_time(){
-    Serial.println(String(wifi_get_hour()));
-    Serial.println(String(wifi_get_minute()));
-    Serial.println(String(wifi_get_day()));
+    // Serial.println(String(wifi_get_hour()) + " ");
+    // Serial.println(String(wifi_get_minute()) + " ");
+    // Serial.println(String(wifi_get_day()) + " ");
     Serial.println(String(wifi_get_epoch()));
 }
 

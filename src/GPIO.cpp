@@ -15,7 +15,8 @@ void GPIO::begin(byte _control_pin, byte _mode, String _ID)
     pin = _control_pin;
     mode = _mode;
     pinMode(pin, (_mode == input_mode ? INPUT:OUTPUT));
-    off();
+    if(mode == output_mode)
+        off();
 }
 
 void GPIO::on()
