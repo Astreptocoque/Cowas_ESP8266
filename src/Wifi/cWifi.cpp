@@ -31,8 +31,7 @@ NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
 //Your Domain name with URL path or IP address with path
 const String serverCowas = "http://128.179.146.212:5000";
 const String serverTime = "http://www.google.com";
-// StaticJsonBuffer<300> JSONbuffer;
-// JsonObject& JSONencoder = JSONbuffer.createObject();
+StaticJsonBuffer<300> JSONbuffer;
 
 void wifi_begin(){
 
@@ -97,6 +96,9 @@ String wifi_get_url(String URL)
         Serial.println(httpResponseCode);
         String payload = http.getString();
         Serial.println(payload);
+        JsonObject& myData = JSONbuffer.parseObject(payload);
+
+    
         // Free resources
         http.end();
         if (httpResponseCode == 200)
@@ -135,7 +137,7 @@ void wifi_post_url(String URL, char *data)
 
         // Your Domain name with URL path or IP address with path
         http.begin(client, serverPath.c_str());
-
+        
         // Send HTTP GET request
         http.addHeader("Content-Type", "application/json");
         // String postData = "button_state=" + data + "&";
