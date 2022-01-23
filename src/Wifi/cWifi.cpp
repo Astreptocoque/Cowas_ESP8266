@@ -38,15 +38,17 @@ void wifi_begin(){
     wifi_connection_led.on();
 
     WiFi.begin(ssid, password);
-    // Serial.println("Connecting to network " + String(ssid));
+    uint32_t time1 = millis();
     while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        // Serial.print(".");
+    {   
+        // sometimes (often) wifi is kinda blocked in a loop when connecting
+        // this allows to reset the connection
+        if(millis() - time1 > 5000){
+            WiFi.reconnect();
+            time1 = millis();
+        }
+        delay(100);
     }
-    // Serial.println("Connected to local Wifi");
-    // Serial.println(WiFi.localIP());
-
     wifi_connection_led.off();
 
     // init ntp

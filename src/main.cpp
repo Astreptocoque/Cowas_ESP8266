@@ -35,9 +35,9 @@ unsigned long timerDelay = 1000;
 
 Serial_device due;
 
-StaticJsonBuffer<300> JSONbuffer;
-JsonObject& JSONencoder = JSONbuffer.createObject();
-String payload;
+// StaticJsonBuffer<300> JSONbuffer;
+// JsonObject& JSONencoder = JSONbuffer.createObject();
+// String payload;
 
 void setup()
 {
