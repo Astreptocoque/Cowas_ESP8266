@@ -12,55 +12,56 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <WiFiClient.h>
 #include <ArduinoJson.h>
 #include "cWifi.h"
 #include "Serial_device.h"
 #include "GPIO.h"
 
-
-#define COMMUNICATION_PIN 12    // pin to engage conversation
+// ========== PINS DEFINITIONS ============
+#define COMMUNICATION_PIN 12
 #define WIFI_CONNECTION_LED 13
 
+// ========== GPIO DEFINITIONS ============
 GPIO wifi_connection_led;       // led to indicate when connecting to wifi
-GPIO message_line;              // output to signal presence to main board
-
-// the following variables are unsigned longs because the time, measured in
-// milliseconds, will quickly become a bigger number than can be stored in an int.
-unsigned long lastTime = 0;
-// Timer set to 10 minutes (600000)
-//unsigned long timerDelay = 600000;
-// Set timer to 5 seconds (5000)
-unsigned long timerDelay = 1000;
+GPIO message_line;              // output to signal new message to main board
 
 Serial_device due;
 
-// StaticJsonBuffer<300> JSONbuffer;
-// JsonObject& JSONencoder = JSONbuffer.createObject();
-// String payload;
+uint32_t lastTime = 0;
+uint32_t timerDelay = 1000;
+
+// ======== ArduinoJSON V5 object =========
+StaticJsonBuffer<300> JSONbuffer;
+JsonObject& JSONencoder = JSONbuffer.createObject();
+String payload;
+
 
 void setup()
 {
-    Serial.begin(115200);
+    Serial.begin(115200); // beware to have same speed on other device
     wifi_connection_led.begin(WIFI_CONNECTION_LED, OUTPUT);
     message_line.begin(COMMUNICATION_PIN, OUTPUT);
-
     
+    // connect to Wi-Fi network
     wifi_begin();
+    // start NTP librairie
+    wifi_start_NTP();
+
+    // init communication with DUE and send time
     due.start_communication();
-    wifi_updateTime();
+    wifi_get_epoch();
     due.send_time();
-    due.validation(); 
-   
 }
 
 void loop()
 {
     
+    // TODO : manage messages from other device, send message, get info from server
+
     // wifi.updateTime();
     // serial.send()
    
-    delay(500);
+    // delay(500);
     // StaticJsonBuffer<300> JSONbuffer;
     // JsonObject& JSONencoder = JSONbuffer.createObject();
     // JSONencoder["sensor"] = "button";
@@ -69,9 +70,7 @@ void loop()
     // JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
     // Serial.println(JSONmessageBuffer);
     
-    // wifi.post("/update", JSONmessageBuffer);
-    // payload = wifi.get("/control/?query=led");
-    // digitalWrite(pin_led, payload.toInt());
-    // delay(2000);
+    // wifi_get_url("/sample/");
+    delay(2000);
 
 }

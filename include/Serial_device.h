@@ -9,12 +9,12 @@ class Serial_device{
     public:
         void start_communication();
         void send_time();
-        void validation();
 
-        // String receive();
-        // uint8_t available();
-        // void flush();
-        // long parseNumber();
+    // ====== not used for now ======
+/*         String receive();
+        uint8_t available();
+        void flush();
+        long parseNumber(); */
 };
 
 
